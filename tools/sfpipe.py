@@ -27,7 +27,7 @@ dv=map_coordinates(dO,((v-G.lo)/h).T,order=1)
 K=int(Lfig.max())+1; Lap,M,_,_,_=laplacian(Vfig,Ffig)
 So=smooth_scores(vertex_scores(Vfig,Ffig,Lfig,K),Lap,M,0.12)
 Sc=transfer_scores(Vfig,Ffig,So,v,dist_out=dv)
-fillv=dv>0.06; Sc[fillv]=0; Sc[fillv,0]=1      # подсыпка = цвет тела
+fillv=(dv>0.06)&(v[:,2]>v[:,2].min()+1.0); Sc[fillv]=0; Sc[fillv,0]=1      # подсыпка = цвет тела
 V2,F2,L2,plog=repaint(v,f,Sc,sigma=0.1,min_area=0.3); log+=plog
 V2[:,2]=np.maximum(V2[:,2],0.2); V2[:,2]-=0.2
 b=boundary_stats(V2,F2,L2)
