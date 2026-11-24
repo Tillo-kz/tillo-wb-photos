@@ -19,7 +19,7 @@ for c in np.unique(fl):
     m=bf[fl==c]; a=A[m].sum()
     if a<0.3: continue
     P=cen[m][:,[0,2]]; w=A[m]/a; mu=(P*w[:,None]).sum(0); D=P-mu; C=(D*w[:,None]).T@D
-    C2=C*4*grow**2 if a>1.5 else np.diag([0.5**2,0.33**2]); mu2=mu if a>1.5 else np.array([mu[0],cen[m][:,2][np.argmin(cen[m][:,1])]]); ells.append((mu2,C2,cen[m][:,1].min() if a<=1.5 else cen[m][:,1].mean(),a))
+    C2=C*4*grow**2 if a>1.5 else np.diag([0.7**2,0.5**2]); mu2=mu if a>1.5 else np.array([mu[0],cen[m][:,2][np.argmin(cen[m][:,1])]]); ells.append((mu2,C2,cen[m][:,1].min() if a<=1.5 else cen[m][:,1].mean(),a))
     print('comp area %.2f center %s size %s'%(a,mu.round(2),(2*np.sqrt(np.linalg.eigvalsh(C))*2*grow).round(2)))
 # vertex normals
 fn=np.cross(V[F[:,1]]-V[F[:,0]],V[F[:,2]]-V[F[:,0]])
