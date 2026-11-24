@@ -17,10 +17,14 @@ h=max(0.05,round(np.ptp(Vfig[:,2])/650,3))
 G=Grid(Vfig.min(0)-0.8,Vfig.max(0)+0.8,h)
 dO,occ=sdf(Vfig,Ffig,G,far=True)
 x,y=G.coords(0),G.coords(1); disk=np.hypot(x[:,None],y[None,:])<=50
-_,A=cone_fill(occ,G,theta,floor_z=0.2,floor_mask=disk,log=log)
-A,comps2,_=clean_added(A,min_vox=300)
+NOFILL=theta>=89
+if NOFILL:
+    A=np.zeros_like(occ)
+else:
+    _,A=cone_fill(occ,G,theta,floor_z=0.2,floor_mask=disk,log=log)
+    A,comps2,_=clean_added(A,min_vox=300)
 log.append('подсыпка %.2f мм³ (%.2f%%)'%(A.sum()*h**3,100*A.sum()/max(occ.sum(),1)))
-fld=blend(dO,A,G,k=k); v,f=mesh(fld,G); del fld
+fld=dO if NOFILL else blend(dO,A,G,k=k); v,f=mesh(fld,G); del fld
 v=taubin(v,f,map_coordinates(dO,((v-G.lo)/h).T,order=1)>0.004,iters=8)
 v,f=decimate(v,f,target); v,f=largest_shell(v,f)
 dv=map_coordinates(dO,((v-G.lo)/h).T,order=1)
@@ -29,7 +33,9 @@ So=smooth_scores(vertex_scores(Vfig,Ffig,Lfig,K),Lap,M,0.12)
 Sc=transfer_scores(Vfig,Ffig,So,v,dist_out=dv)
 fillv=(dv>0.06)&(v[:,2]>v[:,2].min()+1.0); Sc[fillv]=0; Sc[fillv,0]=1      # подсыпка = цвет тела
 V2,F2,L2,plog=repaint(v,f,Sc,sigma=0.1,min_area=0.3); log+=plog
-V2[:,2]=np.maximum(V2[:,2],0.2); V2[:,2]-=0.2
+if not NOFILL:
+    V2[:,2]=np.maximum(V2[:,2],0.2)
+V2[:,2]-=V2[:,2].min()
 b=boundary_stats(V2,F2,L2)
 log.append('граней %d, открытых %d, пила %.3f, t %.0f'%(len(F2),check_closed(F2),b['jag'],time.time()-t))
 R=check(V2,F2,floor_z=V2[:,2].min(),floor_r=50); log.append(report(R,'после'))
