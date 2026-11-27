@@ -14,6 +14,7 @@ PAINT = {1: None, 2: "8", 3: "0C", 4: "1C"}  # экструдер 1 = цвет �
 BED = 256.0
 EDGE = 2.0
 EXCL = (0, 0, 18 + 2, 28 + 2)               # bed_exclude_area + запас
+LOAD_LINE = (0, 0, BED, 13.0)                # линия прочистки сопла: Y1–Y11 по всей ширине — фигурки к ней прилипают
 
 
 def tower_zone(wx, wy, width=35.0, depth=45.0, brim=3.0, gap=5.0):
@@ -36,7 +37,7 @@ def layout(sx, sy, gap=1.0, wipe=(206.0, 15.0)):
             x = EDGE
             while x + w <= BED - EDGE + 1e-6:
                 r = (x, y, x + w, y + h)
-                if not _hit(r, EXCL) and not _hit(r, tz):
+                if not _hit(r, EXCL) and not _hit(r, LOAD_LINE) and not _hit(r, tz):
                     pts.append((x + w / 2, y + h / 2, rot))
                 x += w + gap
             y += h + gap
